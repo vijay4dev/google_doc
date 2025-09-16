@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_doc/repositry/auth_repositry.dart';
 import 'package:google_doc/utils/colors.dart';
 
 class LoginScreen extends ConsumerWidget {
@@ -7,6 +8,11 @@ class LoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context , WidgetRef ref) {
+
+  void signinwithgoogle(WidgetRef ref){
+    ref.read(authprovider).signInWithGoogle();
+  }
+  
     return  Scaffold(
       body: Center(
         child: ElevatedButton.icon(
@@ -22,10 +28,8 @@ class LoginScreen extends ConsumerWidget {
             minimumSize: const Size(150, 80),
           ),
           label: Text("Login With google"),
-          icon: Image.asset("assets/Images/g-logo-2.png" , height: 30,),
-          onPressed: (){
-            
-          },
+          icon: Image.asset("assets/Images/g-logo-2.png" , height: 20,),
+          onPressed: () => signinwithgoogle(ref)
         ),
       ),
     );

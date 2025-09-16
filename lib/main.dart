@@ -4,6 +4,9 @@ import 'package:google_doc/screens/login_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 void main() {
+  
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(ProviderScope(child: const MyApp()));
 }
 
@@ -14,6 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
