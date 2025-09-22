@@ -4,6 +4,10 @@ const express = require('express');
 // Apna User model import kar rahe hai (ye 'user.js' file se aaya jo schema define karta hai)
 const User = require("../models/user");
 
+const JWT = require("jsonwebtoken");
+
+const auth = require("../middleware/authmiddleware");
+
 // Express ka Router banaya - iske andar hum apne routes define karenge
 const authrouter = express.Router();
 
@@ -45,15 +49,22 @@ authrouter.post('/api/signup' , async (req,res)=>{
             return res.status(401).json({erro:"email already exit"});
         }
 
+        const token = JWT.sign({id:user._id} , "passwordKey");
+
         // Agar sab sahi hai to user ka data response me bhej denge
-        res.json({user});
+        res.json({user , token});
         
     } catch (error) {
         res.status(500).json(error)
         // Agar koi error aata hai to console me print kar denge
         console.log(error)
     }
-})
+});
 
+authrouter.get("/" , auth , async (req , res)=>{
+    console.log(req.user);
+    const user = await User.findById(req.user);
+    res.json({user , token : req.token});
+});
 // Apne router ko export kar diya taaki ise server me use kar sake
 module.exports = authrouter;
