@@ -5,7 +5,9 @@ import 'package:google_doc/models/error_model.dart';
 import 'package:google_doc/repositry/auth_repositry.dart';
 import 'package:google_doc/screens/home_screen.dart';
 import 'package:google_doc/screens/login_screen.dart';
+import 'package:google_doc/utils/router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:routemaster/routemaster.dart';
 
 void main() async {
 
@@ -39,7 +41,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     errorModel = await ref.read(authProvider).getUserData();
     // print("eror model========= ${errorModel!.data}");
     if(errorModel != null && errorModel!.data!= null){
-      // print("eror model========= ${errorModel!.data}");
+      print("eror model========= ${errorModel!.data}");
         ref.watch(userProvider.notifier).update((state) => errorModel!.data);
     } else{
       print("eror model========= null");
@@ -49,15 +51,22 @@ class _MyAppState extends ConsumerState<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userProvider);
-    print("user====>${user}");
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
-      home: user == null ? LoginScreen() : HomeScreen(),
+      routerDelegate: RoutemasterDelegate(routesBuilder: (context){
+        final user = ref.watch(userProvider);
+        if(user!=null && user.token.isNotEmpty){
+          return loggedInroute;
+        }
+        else{
+          return loggedOutroute;
+        }
+      }),
+      routeInformationParser:  RoutemasterParser(),
     );
   }
 }
