@@ -99,19 +99,18 @@ class AuthRepository {
     try {
       String? token = await _localStorageRepo.get_token();
 
-
       if (token != null) {
         var res = await _client.get(Uri.parse('$host/'), headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'x-auth-token': token,
         });
+        print("res[omnse codeweee] ==> ${res.body}");
         switch (res.statusCode) {
           case 200:
-            final newUser = Usermodel.fromJson(
-              jsonEncode(
-                jsonDecode(res.body)['user'],
-              ),
-            ).copyWith(token: token);
+            final body = jsonDecode(res.body);
+            print(" user ==> ${body}");
+            final newUser = Usermodel.fromMap(body['user']).copyWith(token: body['token']);
+            print("new user ${newUser.token}");
             error = ErrorModel(error: null, data: newUser);
             _localStorageRepo.set_token(newUser.token);
             break;

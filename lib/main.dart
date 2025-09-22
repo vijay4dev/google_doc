@@ -37,9 +37,12 @@ class _MyAppState extends ConsumerState<MyApp> {
 
   void getuserdata()async{
     errorModel = await ref.read(authProvider).getUserData();
-    print(errorModel!.data);
-    if(errorModel!.error != null && errorModel!.data!= null){
+    // print("eror model========= ${errorModel!.data}");
+    if(errorModel != null && errorModel!.data!= null){
+      // print("eror model========= ${errorModel!.data}");
         ref.watch(userProvider.notifier).update((state) => errorModel!.data);
+    } else{
+      print("eror model========= null");
     }
   }
 

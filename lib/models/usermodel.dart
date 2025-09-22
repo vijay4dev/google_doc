@@ -28,11 +28,11 @@ class Usermodel {
 
   factory Usermodel.fromMap(Map<String, dynamic> map) {
     return Usermodel(
-      pfp: map['pfp'] as String,
-      name: map['name'] as String,
-      email: map['email'] as String,
-      token: map['token'] as String,
-      uid: map['_id'] as String,
+     pfp: map['pfp'] ?? '',
+      name: map['name'] ?? '',
+      email: map['email'] ?? '',
+      token: map['token'] ?? '',   // ab crash nahi hoga agar token missing hai
+      uid: map['_id'] ?? '',
     );
   }
 
