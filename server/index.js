@@ -4,7 +4,7 @@ const express = require('express');
 // Mongoose ko import kar rahe hai jo MongoDB se connect hone ke liye use hota hai
 const mongoose = require('mongoose');
 
-const cors = require("cors");
+const cors = require('cors');
 
 // Apna custom authentication routes ko import kar rahe hai
 const authrouter = require('./routes/auth');
@@ -16,7 +16,7 @@ const app = express();
 const port = 3001;
 
 // MongoDB Atlas ka connection string (is se database se connect honge)
-const DB  = "mongodb+srv://tashviyadav9_db_user:6BX99Qpnv4yI1UUX@cluster0.mgtnrvb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const DB  = "mongodb+srv://tashviyadav9_db_user:JSHsEMIJojazP6cy@cluster0.mgtnrvb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 app.use(cors());
 
@@ -27,9 +27,13 @@ app.use(express.json());
 app.use(authrouter);
 
 // MongoDB se connect kar rahe hai
-mongoose.connect(DB).then(()=>{
-    console.log('db connected') // Agar connection successful ho jata hai to ye print hoga
-})
+mongoose.connect(DB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('✅ DB connected'))
+  .catch(err => console.error('❌ DB connection error:', err));
+  
 
 // Server ko listen/start kar rahe hai specific port pe
 app.listen(port , '0.0.0.0' , function(){

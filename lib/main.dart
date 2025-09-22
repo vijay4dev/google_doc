@@ -6,9 +6,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
 
-  await dotenv.load(fileName: ".env");
   
   WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: 'assets/.env'); // <-- must
 
   runApp(ProviderScope(child: const MyApp()));
 }

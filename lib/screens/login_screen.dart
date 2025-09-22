@@ -2,50 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_doc/repositry/auth_repositry.dart';
 import 'package:google_doc/screens/home_screen.dart';
-import 'package:google_doc/utils/colors.dart';
 
 class LoginScreen extends ConsumerWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
+
+  void signInWithGoogle(WidgetRef ref, BuildContext context) async {
+    final errorModel = await ref.read(authProvider).signInWithGoogle();
+
+    if (!context.mounted) return; // ensures widget still alive
+
+    if (errorModel.error == null) {
+      // update user state
+      ref.read(userProvider.notifier).update((state) => errorModel.data);
+
+      // show success dialog
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Success"),
+          content: const Text("Signed in successfully"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => HomeScreen()));
+    } else {
+      // show error snackb
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorModel.error!)),
+      );
+    }
+  }
 
   @override
-  Widget build(BuildContext context , WidgetRef ref) {
-
-  void signinwithgoogle(WidgetRef ref , BuildContext context) async {
-
-    final errormodel  = await ref.read(authprovider).signInWithGoogle();
-
-    if(!context.mounted){
-      return;
-    }
-
-    if(errormodel.error != null){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Some issue occured while login "))
-      );
-    } else {
-      ref.read(userProvider.notifier).update(errormodel.data);
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomeScreen()));
-    }
-
-  }
-  
-    return  Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
       body: Center(
         child: ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadiusGeometry.circular(10)
-            ),
-            backgroundColor: kwhitecolor,
-            textStyle: TextStyle(
-              color: kblack,
-              fontSize: 20
-            ),
-            minimumSize: const Size(150, 80),
+          onPressed: () => signInWithGoogle(ref, context),
+          icon: const Icon(Icons.login),
+          label: const Text(
+            'Sign in with Google',
+            style: TextStyle(color: Colors.black),
           ),
-          label: Text("Login With google"),
-          icon: Image.asset("assets/Images/g-logo-2.png" , height: 20,),
-          onPressed: () => signinwithgoogle(ref , context)
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            minimumSize: const Size(150, 50),
+          ),
         ),
       ),
     );

@@ -1,70 +1,88 @@
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart';
 import 'package:google_doc/models/error_model.dart';
 import 'package:google_doc/models/usermodel.dart';
 import 'package:google_doc/utils/constants.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart';
 
-final authprovider = Provider(
-  (ref) => AuthRepositry(googlesignin: GoogleSignIn(), client: Client()),
-);
+// AuthRepository provider
+final authProvider = Provider<AuthRepository>((ref) {
+  final googleSignIn = kIsWeb
+      ? GoogleSignIn(
+          scopes: ['email', 'profile'],
+          clientId: dotenv.env['WEB_CLIENT_ID'] ?? '',
+        )
+      : GoogleSignIn(scopes: ['email', 'profile']);
+  return AuthRepository(googleSignIn: googleSignIn, client: Client());
+});
+
+// User state
 final userProvider = StateProvider<Usermodel?>((ref) => null);
 
-class AuthRepositry {
-  final GoogleSignIn _googlesignin;
+class AuthRepository {
+  final GoogleSignIn _googleSignIn;
   final Client _client;
-  AuthRepositry({required GoogleSignIn googlesignin, required Client client})
-    : _googlesignin = googlesignin,
-      _client = client;
 
+  AuthRepository({required GoogleSignIn googleSignIn, required Client client})
+      : _googleSignIn = googleSignIn,
+        _client = client;
+
+  // Google sign-in function
   Future<ErrorModel> signInWithGoogle() async {
-    ErrorModel error = ErrorModel(
-      error: "some thing wrong occured ❌ in login ",
-      data: null,
-    );
+    ErrorModel error = ErrorModel(error: 'Some unexpected error occurred.', data: null);
+
     try {
-      final user = await _googlesignin.signIn();
+
+      print("Starting Google SignIn...");
+      final user = await _googleSignIn.signIn();
+      print("User: $user");
 
       if (user != null) {
-        final googleAuth = await user.authentication;
-        final idToken = googleAuth.idToken;
-
-        if (idToken == null) {
-          throw 'ID token is null';
-        }
-        final useracc = Usermodel(
-          pfp: user.photoUrl!,
-          name: user.displayName!,
+        final userAcc = Usermodel(
           email: user.email,
-          token: ' ',
-          uid: ' ',
+          name: user.displayName ?? '',
+          pfp: user.photoUrl ?? '',
+          uid: '',
+          token: '',
         );
+         
+         // ...existing code...
+        final payload = userAcc.toJson();
+        print('payload.runtimeType => ${payload.runtimeType}');
+        print('payload => $payload');
 
-        // _client.post()
+        final bodyToSend = payload is String ? payload : jsonEncode(payload);
 
-        var res = await _client.post(
+        final res = await _client.post(
           Uri.parse('${host}/api/signup'),
-          body: useracc.toJson(),
-          headers: {'Content-Type': 'application/json', 'charset': "UTF-8"},
+          body: bodyToSend, // <- send raw JSON string or encoded map
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
         );
 
-        switch (res.statusCode) {
-          case 200:
-            final newuser = useracc.copyWith(
-              uid: jsonDecode(res.body)['user']['_id'],
-            );
-            error = ErrorModel(error: null, data: null);
-            break;
-          default:
-            throw 'some error occured $res';
+        print("resss => status:${res.statusCode} body:${res.body}");
+ // ...existing code...
+        
+
+        if (res.statusCode == 200) {
+          final newUser = userAcc.copyWith(
+            uid: jsonDecode(res.body)['user']['_id'],
+            token: jsonDecode(res.body)['token'],
+          );
+          error = ErrorModel(error: null, data: newUser);
+        } else {
+          error = ErrorModel(error: 'Server error: ${res.statusCode}', data: null);
         }
+      } else {
+        print("rnulllll");
       }
     } catch (e) {
       error = ErrorModel(error: e.toString(), data: null);
     }
+
     return error;
   }
 }

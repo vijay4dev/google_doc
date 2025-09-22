@@ -17,7 +17,7 @@ const userSchema = mongoose.Schema({
     // 'pfp' field - user ka profile picture (pfp = profile picture) ka link store karega
     pfp:{
         type:String,      // Isme image ka URL (string) store karenge
-        required:true     // Profile picture ka URL dena bhi zaroori hai
+        required:false    // Profile picture ka URL dena bhi zaroori hai
     },
 });
 
