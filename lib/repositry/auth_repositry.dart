@@ -124,4 +124,8 @@ class AuthRepository {
     }
     return error;
   }
+
+  void signout() async {
+    _localStorageRepo.set_token('');
+  }
 }
