@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_doc/screens/login_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-void main() {
+void main() async {
+
+  await dotenv.load(fileName: ".env");
   
   WidgetsFlutterBinding.ensureInitialized();
 
