@@ -11,12 +11,25 @@ class DocumeScreen extends ConsumerStatefulWidget {
 }
 
 class _DocumeScreenState extends ConsumerState<DocumeScreen> {
+  final InputBorder field_border = InputBorder.none;
+
+  final TextEditingController doc_name = TextEditingController(text: "Untitlled Document");
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    doc_name.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kwhitecolor,
         elevation: 0,
+        leadingWidth: 0,
+        leading: SizedBox(),
         actions: [
           ElevatedButton.icon(
             onPressed: () {},
@@ -36,9 +49,28 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
           children: [
             Image.asset("assets/Images/docs-logo.png" , height: 30,),
             SizedBox(width: 10,),
-            
+            SizedBox(
+              width: 200,
+              child: TextField(
+                controller: doc_name,
+                style: TextStyle(
+                  color: Colors.black
+                ),
+                decoration:  InputDecoration(
+                  border: field_border,
+                  contentPadding: EdgeInsets.all(10)
+                ),
+              ),
+            )
           ],
         ),
+        bottom: PreferredSize(preferredSize: const Size.fromHeight(1), child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.grey.shade200
+            )
+          ),
+        )),
       ),
     );
   }
