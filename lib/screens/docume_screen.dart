@@ -23,6 +23,7 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
             icon: const Icon(Icons.lock, color: Colors.white),
             label: const Text("Share", style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: 5 , horizontal: 10),
               backgroundColor: Colors.blue, // sky blue background
               elevation: 0, // remove elevation
               shape: RoundedRectangleBorder(
@@ -33,6 +34,8 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
         ],
         title: Row(
           children: [
+            Image.asset("assets/Images/docs-logo.png" , height: 30,),
+            SizedBox(width: 10,),
             
           ],
         ),
