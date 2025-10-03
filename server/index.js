@@ -6,12 +6,22 @@ const mongoose = require('mongoose');
 
 const cors = require('cors');
 
+const http = require('http');
+
 // Apna custom authentication routes ko import kar rahe hai
 const authrouter = require('./routes/auth');
 const docroute = require('./routes/document');
 
 // Express app create kar liya
 const app = express();
+
+var server = http.createServer(app);
+var io = require('socket.io')(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 // Server ka port define kar diya
 const port = 3001;
@@ -36,7 +46,21 @@ mongoose.connect(DB, {
   })
   .then(() => console.log('✅ DB connected'))
   .catch(err => console.error('❌ DB connection error:', err));
-  
+
+
+// Proper connection event
+io.on('connection', (socket) => {
+  console.log("✅ Socket connected id is " + socket.id);
+
+  socket.on('join', (documentId) => {
+    socket.join(documentId);
+    console.log(socket.id + " joined room " + documentId);
+  });
+
+  socket.on('disconnect', () => {
+    console.log("❌ Socket disconnected id is " + socket.id);
+  });
+});
 
 // Server ko listen/start kar rahe hai specific port pe
 app.listen(port , '0.0.0.0' , function(){

@@ -5,6 +5,7 @@ import 'package:google_doc/models/doc_model.dart';
 import 'package:google_doc/models/error_model.dart';
 import 'package:google_doc/repositry/auth_repositry.dart';
 import 'package:google_doc/repositry/doc_repo.dart';
+import 'package:google_doc/repositry/socket_repo.dart';
 import 'package:google_doc/utils/colors.dart';
 
 class DocumeScreen extends ConsumerStatefulWidget {
@@ -25,11 +26,13 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
   QuillController _controller = QuillController.basic();
 
   ErrorModel? errorModel;
+  SocketRepo socketrepo = SocketRepo();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    socketrepo.joinRoom(widget.id);
   }
 
   @override

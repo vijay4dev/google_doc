@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_doc/models/doc_model.dart';
 import 'package:google_doc/models/error_model.dart';
+import 'package:google_doc/repositry/socket_repo.dart';
 import 'package:google_doc/utils/constants.dart';
 import 'package:http/http.dart';
 
@@ -11,6 +12,8 @@ final docrepoprovider = Provider((ref) => DocRepo(client: Client()));
 class DocRepo {
   final Client _client;
   DocRepo({required Client client}) : _client = client;
+
+  SocketRepo socketRepo = SocketRepo();
 
   Future<ErrorModel> createdoc(String token) async {
     ErrorModel errorModel = ErrorModel(
