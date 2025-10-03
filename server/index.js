@@ -8,6 +8,7 @@ const cors = require('cors');
 
 // Apna custom authentication routes ko import kar rahe hai
 const authrouter = require('./routes/auth');
+const docroute = require('./routes/document');
 
 // Express app create kar liya
 const app = express();
@@ -25,6 +26,8 @@ app.use(express.json());
 
 // Apne authentication routes ko app me use kar lmbkiya
 app.use(authrouter);
+
+app.use(docroute);
 
 // MongoDB se connect kar rahe hai
 mongoose.connect(DB, {

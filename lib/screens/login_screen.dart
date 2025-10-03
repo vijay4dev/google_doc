@@ -19,18 +19,14 @@ class LoginScreen extends ConsumerWidget {
       ref.read(userProvider.notifier).update((state) => errorModel.data);
 
       // show success dialog
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("Success"),
-          content: const Text("Signed in successfully"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
-            ),
-          ],
-        ),
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
+          padding: EdgeInsets.all(10),
+          backgroundColor: Colors.black,
+          content: Text("sign in ✅" , style: TextStyle(color: Colors.white),), actions: [
+            TextButton(onPressed: null, child: Text('DISMISS')),
+          ]
+        )
       );
       naviagtion.replace("/");
     } else {

@@ -6,16 +6,16 @@ const doc_schema = mongoose.Schema({
         required:true,
         type: String
     },
-    CreatedAt:{
+    createdAt:{
         required: true,
         type: Number
     },
-    Title:{
+    title:{
         required:true,
         type: String,
         trim: true
     },
-    Content:{
+    content:{
         type: Array,
         default: []
     }
