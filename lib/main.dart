@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_doc/models/error_model.dart';
 import 'package:google_doc/repositry/auth_repositry.dart';
@@ -64,6 +65,9 @@ class _MyAppState extends ConsumerState<MyApp> {
         }
       }),
       routeInformationParser:  RoutemasterParser(),
+      localizationsDelegates: const [
+        FlutterQuillLocalizations.delegate,
+      ],
     );
   }
 }
