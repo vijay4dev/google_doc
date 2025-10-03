@@ -54,7 +54,7 @@ class DocRepo {
     );
 
     try {
-      var res = await _client.post(
+      var res = await _client.get(
         Uri.parse('$host/docs/me'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
@@ -116,4 +116,71 @@ class DocRepo {
 
     return errorModel;
   }
+
+  Future<ErrorModel> updatetitle(String token, String id, String title) async {
+    ErrorModel errorModel = ErrorModel(
+      error: "Something unexpected ocur",
+      data: null,
+    );
+
+    try {
+      var res = await _client.post(
+        Uri.parse('$host/doc/title'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': token,
+        },
+        body: jsonEncode({'title': title, 'id': id}),
+      );
+
+       switch (res.statusCode) {
+        case 200:
+          errorModel = ErrorModel(
+            error: null,
+            data: DocModel.fromJson(res.body),
+          );
+          break;
+        default:
+          errorModel = ErrorModel(error: res.body, data: null);
+          break;
+      }
+
+    } catch (e) {
+      errorModel = ErrorModel(error: e.toString(), data: null);
+    }
+
+    return errorModel;
+  }
+
+
+    Future<ErrorModel> getDocumentById(String token , String id) async {
+    ErrorModel errorModel = ErrorModel(
+      error: "Something unexpected ocur",
+      data: null,
+    );
+
+    try {
+      var res = await _client.get(
+        Uri.parse('$host/doc/$id'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': token,
+        },
+      );
+
+      switch (res.statusCode) {
+        case 200:
+          errorModel = ErrorModel(error: null, data: DocModel.fromJson(res.body));
+
+          break;
+        default:
+          throw "This document does not exist , please create a new";
+      }
+    } catch (e) {
+      errorModel = ErrorModel(error: e.toString(), data: null);
+    }
+
+    return errorModel;
+  }
+
 }
