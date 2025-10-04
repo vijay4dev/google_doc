@@ -7,8 +7,10 @@ class SocketClient {
 
   SocketClient._internal() {
     socket = io.io(host, <String, dynamic>{
-      'transports': ['websocket'],
+      // try letting socket.io negotiate the best transport:
+      // 'transports': ['websocket', 'polling'],
       'autoConnect': false,
+      'reconnection': true,
     });
 
     socket!.onConnect((_) {

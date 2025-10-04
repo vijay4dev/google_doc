@@ -36,11 +36,7 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
     // TODO: implement initState
     
     super.initState();
-    
-    socketRepo.socketClient.onConnect((_) {
-    print("🟢 Socket connected, joining room...");
     socketRepo.joinRoom(widget.id);
-  });
   }
 
   @override

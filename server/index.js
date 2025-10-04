@@ -5,6 +5,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const http = require('http');
+const { Server } = require('socket.io');
 // Apna custom authentication routes ko import kar rahe hai
 const authrouter = require('./routes/auth');
 const docroute = require('./routes/document');
@@ -14,7 +15,12 @@ const docroute = require('./routes/document');
 const app = express();
 const server = http.createServer(app);
 
-var io = require('socket.io')(server);
+const io = new Server(server, {
+  cors: { origin: '*', methods: ['GET', 'POST'] },
+  pingInterval: 25000,
+  pingTimeout: 60000,
+});
+
 
 
 // Server ka port define kar diya
@@ -41,17 +47,28 @@ mongoose.connect(DB, {
   .then(() => console.log('✅ DB connected'))
   .catch(err => console.error('❌ DB connection error:', err));
 
-io.on("connection", (socket) => {
-  console.log(socket.id + "socket is");
-      
-  socket.on('join', (documentId) => {
-    socket.join(documentId);
-    console.log("joined room:", documentId);
+io.on('connection', (socket) => {
+  console.log('🔌 connected:', socket.id);
+
+  socket.on('startdoc', async (documentId, ack) => {
+    try {
+      await socket.join(documentId);
+      console.log('✅ joined room:', documentId, 'by', socket.id);
+      ack?.({ ok: true, rooms: Array.from(socket.rooms) });
+    } catch (e) {
+      console.error('❌ join failed:', e);
+      ack?.({ ok: false, error: e?.message || String(e) });
+    }
   });
-console.log("Socket rooms:", Array.from(socket.rooms));
+
+  socket.on('disconnect', (reason) => {
+    console.log('🔌 disconnected:', socket.id, reason);
+  });
 });
 
 // Server ko listen/start kar rahe hai specific port pe
 server.listen(port, '0.0.0.0', function () {
   console.log('server started'); // Server start hone ke baad ye message show hoga
 });
+
+module.exports = io;

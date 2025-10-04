@@ -2,12 +2,39 @@ import 'package:google_doc/clients/socket_clients.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
 class SocketRepo {
-  final _socketClient = SocketClient.instance.socket!;
+  final Socket _socket = SocketClient.instance.socket!;
+  String? _currentDocId;
 
-  Socket get socketClient => _socketClient;
+  SocketRepo() {
+    _socket.on('connect', (_) {
+      print('✅ client connected: ${_socket.id}');
+      if (_currentDocId != null) {
+        _emitJoin(_currentDocId!);
+      }
+    });
+
+    _socket.on('disconnect', (reason) {
+      print('⚠️ client disconnected: $reason');
+    });
+
+    _socket.on('connect_error', (err) {
+      print('❌ connect_error: $err');
+    });
+  }
 
   void joinRoom(String documentId) {
-     print("📤 Emitting join with documentId: $documentId");
-    _socketClient.emit('join', documentId);
+    _currentDocId = documentId;
+    if (_socket.connected) {
+      _emitJoin(documentId);
+    } else {
+      _socket.connect(); // ensure we're connecting
+    }
+  }
+
+  void _emitJoin(String documentId) {
+    print("📤 Emitting startdoc for: $documentId");
+    _socket.emitWithAck('startdoc', documentId, ack: (data) {
+      print('🟢 join ack: $data');
+    });
   }
 }
