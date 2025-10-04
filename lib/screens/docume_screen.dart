@@ -26,13 +26,11 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
   QuillController _controller = QuillController.basic();
 
   ErrorModel? errorModel;
-  SocketRepo socketrepo = SocketRepo();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    socketrepo.joinRoom(widget.id);
   }
 
   @override
@@ -40,6 +38,7 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     fetchdocumentdata();
+
   }
 
   void fetchdocumentdata() async {
