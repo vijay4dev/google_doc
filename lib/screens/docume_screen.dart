@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_doc/clients/socket_clients.dart';
 import 'package:google_doc/models/doc_model.dart';
 import 'package:google_doc/models/error_model.dart';
 import 'package:google_doc/repositry/auth_repositry.dart';
 import 'package:google_doc/repositry/doc_repo.dart';
 import 'package:google_doc/repositry/socket_repo.dart';
 import 'package:google_doc/utils/colors.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 
 class DocumeScreen extends ConsumerStatefulWidget {
   final String id;
@@ -27,10 +29,18 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
 
   ErrorModel? errorModel;
 
+    SocketRepo socketRepo = SocketRepo();
+
   @override
   void initState() {
     // TODO: implement initState
+    
     super.initState();
+    
+    socketRepo.socketClient.onConnect((_) {
+    print("🟢 Socket connected, joining room...");
+    socketRepo.joinRoom(widget.id);
+  });
   }
 
   @override

@@ -1,14 +1,10 @@
 
-
 // Express framework ko import kar rahe hai jo server banane ke liye use hota hai
 const express = require('express');
-
 // Mongoose ko import kar rahe hai jo MongoDB se connect hone ke liye use hota hai
 const mongoose = require('mongoose');
-
 const cors = require('cors');
-
-
+const http = require('http');
 // Apna custom authentication routes ko import kar rahe hai
 const authrouter = require('./routes/auth');
 const docroute = require('./routes/document');
@@ -16,9 +12,10 @@ const docroute = require('./routes/document');
 
 // Express app create kar liya
 const app = express();
+const server = http.createServer(app);
 
+var io = require('socket.io')(server);
 
-// socket io config
 
 // Server ka port define kar diya
 const port = 3001;
@@ -44,9 +41,17 @@ mongoose.connect(DB, {
   .then(() => console.log('✅ DB connected'))
   .catch(err => console.error('❌ DB connection error:', err));
 
-
+io.on("connection", (socket) => {
+  console.log(socket.id + "socket is");
+      
+  socket.on('join', (documentId) => {
+    socket.join(documentId);
+    console.log("joined room:", documentId);
+  });
+console.log("Socket rooms:", Array.from(socket.rooms));
+});
 
 // Server ko listen/start kar rahe hai specific port pe
-app.listen(port, '0.0.0.0', function () {
+server.listen(port, '0.0.0.0', function () {
   console.log('server started'); // Server start hone ke baad ye message show hoga
 });

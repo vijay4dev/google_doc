@@ -13,8 +13,6 @@ class DocRepo {
   final Client _client;
   DocRepo({required Client client}) : _client = client;
 
-  SocketRepo socketRepo = SocketRepo();
-
   Future<ErrorModel> createdoc(String token) async {
     ErrorModel errorModel = ErrorModel(
       error: "Something unexpected ocur",
