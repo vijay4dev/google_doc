@@ -1,5 +1,5 @@
-import 'package:google_doc/utils/constants.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:google_doc/utils/constants.dart';
 
 class SocketClient {
   io.Socket? socket;
@@ -7,21 +7,18 @@ class SocketClient {
 
   SocketClient._internal() {
     socket = io.io(host, <String, dynamic>{
-      // try letting socket.io negotiate the best transport:
-      // 'transports': ['websocket', 'polling'],
+      'transports': ['websocket'], // skip long-polling issues
       'autoConnect': false,
       'reconnection': true,
+      'reconnectionDelay': 500,
+      'reconnectionAttempts': 10,
+      'timeout': 10000,
+      'path': '/socket.io',        // explicit
     });
 
-    socket!.onConnect((_) {
-      print("✅ Connected to server");
-    });
-
-    socket!.connect();
+    socket!.onConnect((_) => print("✅ Connected to server"));
+    // Do NOT auto connect here. Keep it controlled from repo.
   }
 
-  static SocketClient get instance {
-    _instance ??= SocketClient._internal();
-    return _instance!;
-  }
+  static SocketClient get instance => _instance ??= SocketClient._internal();
 }

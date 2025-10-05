@@ -19,6 +19,7 @@ const io = new Server(server, {
   cors: { origin: '*', methods: ['GET', 'POST'] },
   pingInterval: 25000,
   pingTimeout: 60000,
+  path: '/socket.io',
 });
 
 
@@ -63,6 +64,14 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', (reason) => {
     console.log('🔌 disconnected:', socket.id, reason);
+  });
+});
+
+io.engine.on('connection_error', (err) => {
+  console.log('engine connection_error:', {
+    code: err.code,
+    message: err.message,
+    context: err.context,
   });
 });
 

@@ -8,9 +8,7 @@ class SocketRepo {
   SocketRepo() {
     _socket.on('connect', (_) {
       print('✅ client connected: ${_socket.id}');
-      if (_currentDocId != null) {
-        _emitJoin(_currentDocId!);
-      }
+      if (_currentDocId != null) _emitJoin(_currentDocId!);
     });
 
     _socket.on('disconnect', (reason) {
@@ -27,7 +25,7 @@ class SocketRepo {
     if (_socket.connected) {
       _emitJoin(documentId);
     } else {
-      _socket.connect(); // ensure we're connecting
+      _socket.connect();
     }
   }
 
