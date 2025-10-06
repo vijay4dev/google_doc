@@ -71,7 +71,13 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
       setState(() {});
     }
     _controller!.document.changes.listen((event){
-
+        if(event.source == quill.ChangeSource.local ){
+          Map<String, dynamic> map = {
+          'delta': event.change,
+          'room': widget.id,
+        };
+        socketRepo.typing(map);
+        }
     });
   }
 
