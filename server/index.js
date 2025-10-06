@@ -62,6 +62,15 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on("typing", async (data)=>{
+    try {
+      await socket.broadcast.to(data.room).emit('changes',data);
+      console.log('data sent to', data.room);
+    } catch (error) {
+       console.error('❌ data sent failed:', e);
+    }
+  });
+
   socket.on('disconnect', (reason) => {
     console.log('🔌 disconnected:', socket.id, reason);
   });

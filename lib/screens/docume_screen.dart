@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_doc/clients/socket_clients.dart';
 import 'package:google_doc/models/doc_model.dart';
 import 'package:google_doc/models/error_model.dart';
 import 'package:google_doc/repositry/auth_repositry.dart';
 import 'package:google_doc/repositry/doc_repo.dart';
 import 'package:google_doc/repositry/socket_repo.dart';
 import 'package:google_doc/utils/colors.dart';
-import 'package:socket_io_client/socket_io_client.dart';
+import 'package:flutter_quill/quill_delta.dart'; 
 
 class DocumeScreen extends ConsumerStatefulWidget {
   final String id;
@@ -25,18 +25,20 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
     text: "Untitle Document",
   );
 
-  QuillController _controller = QuillController.basic();
+  quill.QuillController? _controller;
 
   ErrorModel? errorModel;
 
-    SocketRepo socketRepo = SocketRepo();
+  SocketRepo socketRepo = SocketRepo();
 
   @override
   void initState() {
     // TODO: implement initState
-    
+
     super.initState();
     socketRepo.joinRoom(widget.id);
+
+    socketRepo.changelistner((data) {});
   }
 
   @override
@@ -44,19 +46,33 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     fetchdocumentdata();
-
+    socketRepo.changelistner((data){
+      _controller?.compose(
+        Delta.fromJson(data['delta']),
+        _controller?.selection ?? const TextSelection.collapsed(offset: 0),
+        quill.ChangeSource.remote,
+      );
+    });
   }
 
   void fetchdocumentdata() async {
-    errorModel = await ref.read(docrepoprovider).getDocumentById(ref.watch(userProvider)!.token, widget.id);
+    errorModel = await ref
+        .read(docrepoprovider)
+        .getDocumentById(ref.watch(userProvider)!.token, widget.id);
 
-    if(errorModel!.data != null){
+    if (errorModel!.data != null) {
       doc_name.text = (errorModel!.data as DocModel).title;
-      setState(() {
-        
-      });
+      _controller = QuillController(
+        document: errorModel!.data.content.isEmpty
+            ? quill.Document()
+            : quill.Document.fromJson(errorModel!.data.content),
+        selection: const TextSelection.collapsed(offset: 0),
+      );
+      setState(() {});
     }
+    _controller!.document.changes.listen((event){
 
+    });
   }
 
   void updatetitle(WidgetRef ref, String title) {
@@ -70,11 +86,13 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
     // TODO: implement dispose
     super.dispose();
     doc_name.dispose();
-    _controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_controller == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -135,7 +153,7 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: QuillSimpleToolbar(
-              controller: _controller,
+              controller: _controller!,
               config: const QuillSimpleToolbarConfig(),
             ),
           ),
@@ -143,7 +161,7 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
           // Editor ko expand karwaya
           Expanded(
             child: QuillEditor.basic(
-              controller: _controller,
+              controller: _controller!,
               config: const QuillEditorConfig(
                 padding: EdgeInsetsGeometry.all(10),
                 placeholder: "Having a story in mind .....",

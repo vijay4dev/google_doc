@@ -35,4 +35,12 @@ class SocketRepo {
       print('🟢 join ack: $data');
     });
   }
+
+  void typing(Map<String, dynamic> data){
+    _socket.emit("typing", data);
+  }
+
+  void changelistner(Function(Map<String,dynamic>) func){
+    _socket.on('changes' , (data) => func(data));
+  }
 }

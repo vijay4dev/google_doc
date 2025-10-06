@@ -7,7 +7,7 @@ class SocketClient {
 
   SocketClient._internal() {
     socket = io.io(host, <String, dynamic>{
-      'transports': ['websocket'], // skip long-polling issues
+      'transports': ['websocket'], 
       'autoConnect': false,
       'reconnection': true,
       'reconnectionDelay': 500,
@@ -17,7 +17,7 @@ class SocketClient {
     });
 
     socket!.onConnect((_) => print("✅ Connected to server"));
-    // Do NOT auto connect here. Keep it controlled from repo.
+    
   }
 
   static SocketClient get instance => _instance ??= SocketClient._internal();
