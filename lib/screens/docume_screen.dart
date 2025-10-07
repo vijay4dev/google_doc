@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
@@ -8,7 +10,8 @@ import 'package:google_doc/repositry/auth_repositry.dart';
 import 'package:google_doc/repositry/doc_repo.dart';
 import 'package:google_doc/repositry/socket_repo.dart';
 import 'package:google_doc/utils/colors.dart';
-import 'package:flutter_quill/quill_delta.dart'; 
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:routemaster/routemaster.dart';
 
 class DocumeScreen extends ConsumerStatefulWidget {
   final String id;
@@ -38,7 +41,21 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
     super.initState();
     socketRepo.joinRoom(widget.id);
 
-    socketRepo.changelistner((data) {});
+    socketRepo.changelistner((data) {
+      _controller?.compose(
+        Delta.fromJson(data['delta']),
+        _controller?.selection ?? const TextSelection.collapsed(offset: 0),
+        quill.ChangeSource.remote,
+      );
+    });
+
+    Timer.periodic(const Duration(seconds: 2), (timer) {
+      socketRepo.autosave(<String, dynamic>{
+        'delta': _controller!.document.toDelta(),
+        'room': widget.id,
+      });
+       
+    });
   }
 
   @override
@@ -46,13 +63,6 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     fetchdocumentdata();
-    socketRepo.changelistner((data){
-      _controller?.compose(
-        Delta.fromJson(data['delta']),
-        _controller?.selection ?? const TextSelection.collapsed(offset: 0),
-        quill.ChangeSource.remote,
-      );
-    });
   }
 
   void fetchdocumentdata() async {
@@ -70,14 +80,11 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
       );
       setState(() {});
     }
-    _controller!.document.changes.listen((event){
-        if(event.source == quill.ChangeSource.local ){
-          Map<String, dynamic> map = {
-          'delta': event.change,
-          'room': widget.id,
-        };
+    _controller!.document.changes.listen((event) {
+      if (event.source == quill.ChangeSource.local) {
+        Map<String, dynamic> map = {'delta': event.change, 'room': widget.id};
         socketRepo.typing(map);
-        }
+      }
     });
   }
 
@@ -128,7 +135,9 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
         ],
         title: Row(
           children: [
-            Image.asset("assets/Images/docs-logo.png", height: 30),
+            GestureDetector( onTap: (){
+              Routemaster.of(context).replace('/');
+            }, child: Image.asset("assets/Images/docs-logo.png", height: 30)),
             SizedBox(width: 10),
             SizedBox(
               width: 200,

@@ -42,10 +42,7 @@ authrouter.post('/api/signup' , async (req,res)=>{
             // Database me save kar diya
             user = await user.save();
         }
-        else{
-            // Agar user already exist karta hai to error return karenge
-            return res.status(401).json({erro:"email already exit"});
-        }
+       
 
         const token = JWT.sign({id:user._id} , "passwordKey");
 

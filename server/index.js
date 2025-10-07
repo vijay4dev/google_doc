@@ -9,6 +9,7 @@ const { Server } = require('socket.io');
 // Apna custom authentication routes ko import kar rahe hai
 const authrouter = require('./routes/auth');
 const docroute = require('./routes/document');
+const Document = require("./models/document_model")
 
 
 // Express app create kar liya
@@ -74,7 +75,18 @@ io.on('connection', (socket) => {
   socket.on('disconnect', (reason) => {
     console.log('🔌 disconnected:', socket.id, reason);
   });
+
+  socket.on("save", (data) => {
+    savedata(data);
+  })
 });
+
+const savedata = async(data)=>{
+  let document = await Document.findById(data.room);
+  document.content = data.delta;
+  document = await document.save();
+  console.log("data saved");
+};
 
 io.engine.on('connection_error', (err) => {
   console.log('engine connection_error:', {

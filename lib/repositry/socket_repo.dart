@@ -43,4 +43,8 @@ class SocketRepo {
   void changelistner(Function(Map<String,dynamic>) func){
     _socket.on('changes' , (data) => func(data));
   }
+
+  void autosave(Map<String, dynamic> data){
+    _socket.emit("save" , data);
+  }
 }
