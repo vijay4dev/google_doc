@@ -19,8 +19,6 @@ authrouter.post('/api/signup' , async (req,res)=>{
     console.log("Headers:", req.headers);
     console.log("Body:", req.body);
 
-    console.log("hhheee");
-
     // Request ke andar aaya hua data (body se) console me print karenge
     console.log("request =====" , req.body)
 

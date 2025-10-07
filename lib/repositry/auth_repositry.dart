@@ -80,7 +80,7 @@ class AuthRepository {
 
           error = ErrorModel(error: null, data: newUser);
         } else {
-          error = ErrorModel(error: 'Server error: ${res.statusCode}', data: null);
+          error = ErrorModel(error: 'Server error: ${res.statusCode} ${res.body}', data: null);
         }
       } else {
         print("rnulllll");
