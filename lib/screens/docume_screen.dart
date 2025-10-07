@@ -34,6 +34,10 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
 
   SocketRepo socketRepo = SocketRepo();
 
+  bool isSaved = false;
+  Timer? saveIndicatorTimer;
+  bool isTyping = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -54,7 +58,19 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
         'delta': _controller!.document.toDelta(),
         'room': widget.id,
       });
-       
+
+      if (!isTyping) {
+        setState(() {
+          isSaved = true;
+        });
+
+        saveIndicatorTimer?.cancel();
+        saveIndicatorTimer = Timer(const Duration(seconds: 2), () {
+          setState(() {
+            isSaved = false;
+          });
+        });
+      }
     });
   }
 
@@ -84,6 +100,14 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
       if (event.source == quill.ChangeSource.local) {
         Map<String, dynamic> map = {'delta': event.change, 'room': widget.id};
         socketRepo.typing(map);
+        isTyping = true;
+
+        // Reset typing flag after short delay
+        Future.delayed(const Duration(seconds: 2), () {
+          setState(() {
+            isTyping = false;
+          });
+        });
       }
     });
   }
@@ -99,6 +123,7 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
     // TODO: implement dispose
     super.dispose();
     doc_name.dispose();
+    saveIndicatorTimer?.cancel();
   }
 
   @override
@@ -114,6 +139,19 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
         leadingWidth: 0,
         leading: SizedBox(),
         actions: [
+          if (isSaved)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Center(
+                child: Text(
+                  "Saved",
+                  style: TextStyle(
+                    color: Colors.black.withOpacity(0.7),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton.icon(
@@ -135,9 +173,12 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
         ],
         title: Row(
           children: [
-            GestureDetector( onTap: (){
-              Routemaster.of(context).replace('/');
-            }, child: Image.asset("assets/Images/docs-logo.png", height: 30)),
+            GestureDetector(
+              onTap: () {
+                Routemaster.of(context).replace('/');
+              },
+              child: Image.asset("assets/Images/docs-logo.png", height: 30),
+            ),
             SizedBox(width: 10),
             SizedBox(
               width: 200,
@@ -175,13 +216,19 @@ class _DocumeScreenState extends ConsumerState<DocumeScreen> {
 
           // Editor ko expand karwaya
           Expanded(
-            child: QuillEditor.basic(
-              controller: _controller!,
-              config: const QuillEditorConfig(
-                padding: EdgeInsetsGeometry.all(10),
-                placeholder: "Having a story in mind .....",
+              child: SizedBox(
+                width: 750,
+                child: Card(
+                  color: Colors.white,
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: quill.QuillEditor.basic(
+                      controller: _controller!,
+                    ),
+                  ),
+                ),
               ),
-            ),
           ),
         ],
       ),
