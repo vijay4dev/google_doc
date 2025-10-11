@@ -29,7 +29,7 @@ const io = new Server(server, {
 const port = 3001;
 
 // MongoDB Atlas ka connection string (is se database se connect honge)
-const DB = "mongodb+srv://tashviyadav9_db_user:JSHsEMIJojazP6cy@cluster0.mgtnrvb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const DB = "";
 
 app.use(cors());
 
